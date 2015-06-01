@@ -10,7 +10,6 @@ def computeSSE(data, centers, clusterID):
     for i in range(nData):
         c = clusterID[i]
         sse += squaredDistance(data[i], centers[c])
-
     return sse
 
 
@@ -21,9 +20,9 @@ def updateClusterID(data, centers):
 
     for i in range(nData):
         min_distance = sys.maxint
-        nearest_clusterID = 0
-        for j, c in enumerate(centers):
-            distance = squaredDistance(data[i], centers[c])
+        nearest_clusterID = -1
+        for j, center in enumerate(centers):
+            distance = squaredDistance(data[i], center)
             if distance < min_distance:
                 nearest_clusterID = j
                 min_distance = distance
@@ -31,7 +30,6 @@ def updateClusterID(data, centers):
 
     # TODO
     # assign the closet center to each data point
-
     return clusterID
 
 # K: number of clusters
@@ -40,24 +38,29 @@ def updateClusterID(data, centers):
 def updateCenters(data, clusterID, K):
     nDim = len(data[0])
     centers = [[0] * nDim for i in range(K)]
-    # centers is a list of K elements, each with n dimensions
+    # centers is a list of K elements, each with nDimensions
     nData = len(data)
     # clusterID is a list of n elements specifying cluster assignments.
     cluster_elements = {}
-    for i in range(clusterID):
-        arr = np.array([])
-        cluster_elements.setDefault(clusterID[i], arr)
-        cluster_elements[clusterID[i]] = np.vstack(
-            (cluster_elements[clusterID[i]], data[i]))
+    # cluster_elements maps
+    for i in range(len(clusterID)):
+        # arr = np.empty((nDim,))
+        # cluster_elements.setdefault(clusterID[i], arr)
+        # cluster_elements[clusterID[i]] = np.vstack(
+        #    (cluster_elements[clusterID[i]], np.array(data[i])))
+        cluster_elements.setdefault(clusterID[i], [])
+        cluster_elements[clusterID[i]].append(data[i])
+
+    for key in cluster_elements.keys():
+        cluster_elements[key] = np.array(cluster_elements[key])
 
     for i, c in enumerate(centers):
         if i in cluster_elements.keys():
-            centers[c] = np.mean(cluster_elements[c], axis=0)
+            centers[i] = np.mean(cluster_elements[i], axis=0)
 
         # TODO recompute the centers based on current clustering assignment
         # If a cluster doesn't have any data points, in this homework, leave it to
         # ALL 0s
-
     return centers
 
 
